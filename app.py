@@ -201,8 +201,7 @@ dpdpa_sections = [
     "Section 6 — Consent",
     "Section 7 — Certain Legitimate Uses",
     "Section 8 — General Obligations of Data Fiduciary",
-    "Section 9 — Processing of Personal Data of Children",
-    "Section 10 — Additional Obligations of Significant Data Fiduciaries"
+    "Section 9 — Processing of Personal Data of Children"
 ]
 
 # STEP 5: Define the GPT analysis function
