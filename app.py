@@ -4,7 +4,7 @@ import streamlit as st
 import openai
 import pandas as pd
 import json
-print(openai.__version__)
+
 # STEP 1: Setup OpenAI API Key
 openai.api_key = st.secrets["openai_api_key"]
 client = openai.OpenAI(api_key=openai.api_key)
@@ -204,6 +204,25 @@ dpdpa_sections = [
     "Section 9 — Processing of Personal Data of Children"
 ]
 
+import os
+
+def get_or_run_analysis(section, policy, law_text):
+    folder = "saved_gpt_responses"
+    os.makedirs(folder, exist_ok=True)
+    fname = os.path.join(folder, f"{section.replace(' ', '_')}.json")
+
+    if os.path.exists(fname):
+        with open(fname, "r") as f:
+            content = f.read()
+    else:
+        # Fresh GPT call
+        content = analyze_section(section, policy, law_text)
+        with open(fname, "w") as f:
+            f.write(content)
+
+    return content
+
+
 # STEP 5: Define the GPT analysis function
 def analyze_section(section_text, policy_text, full_chapter_text):
     prompt = f"""
@@ -252,7 +271,6 @@ No explanation outside the JSON.
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
         temperature=0,
-        seed = 42
     )
     return response.choices[0].message.content
 
@@ -260,15 +278,24 @@ No explanation outside the JSON.
 if st.button("Run Compliance Check"):
     results = []
     with st.spinner("Analyzing..."):
+        # for section in dpdpa_sections:
+        #     try:
+        #         st.text(f"🔎 Checking {section}...")
+        #         section_response = analyze_section(section, privacy_policy_text, dpdpa_chapter_text)
+        #         parsed = json.loads(section_response)
+        #         results.append(parsed)
+        #     except Exception as e:
+        #         st.error(f"Error analyzing {section}: {e}")
+        #         continue
         for section in dpdpa_sections:
             try:
                 st.text(f"🔎 Checking {section}...")
-                section_response = analyze_section(section, privacy_policy_text, dpdpa_chapter_text)
+                section_response = get_or_run_analysis(section, privacy_policy_text, dpdpa_chapter_text)
                 parsed = json.loads(section_response)
                 results.append(parsed)
             except Exception as e:
                 st.error(f"Error analyzing {section}: {e}")
-                continue
+
 
     # Convert to DataFrame and display
     # STEP 8: Show detailed results on screen (No Excel)
