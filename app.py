@@ -206,8 +206,6 @@ dpdpa_sections = [
     "Section 9 — Processing of Personal Data of Children"
 ]
 
-import os
-
 def get_or_run_analysis(section, policy, law_text):
     folder = "saved_gpt_responses"
     os.makedirs(folder, exist_ok=True)
@@ -227,7 +225,6 @@ def get_or_run_analysis(section, policy, law_text):
             f.write(content)
 
     return content
-
 
 
 # STEP 5: Define the GPT analysis function
@@ -285,15 +282,6 @@ No explanation outside the JSON.
 if st.button("Run Compliance Check"):
     results = []
     with st.spinner("Analyzing..."):
-        # for section in dpdpa_sections:
-        #     try:
-        #         st.text(f"🔎 Checking {section}...")
-        #         section_response = analyze_section(section, privacy_policy_text, dpdpa_chapter_text)
-        #         parsed = json.loads(section_response)
-        #         results.append(parsed)
-        #     except Exception as e:
-        #         st.error(f"Error analyzing {section}: {e}")
-        #         continue
         for section in dpdpa_sections:
             try:
                 section_response = get_or_run_analysis(section, privacy_policy_text, dpdpa_chapter_text)
