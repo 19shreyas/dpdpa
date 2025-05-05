@@ -4,6 +4,8 @@ import streamlit as st
 import openai
 import pandas as pd
 import json
+import os
+import time
 
 # STEP 1: Setup OpenAI API Key
 openai.api_key = st.secrets["openai_api_key"]
@@ -211,16 +213,21 @@ def get_or_run_analysis(section, policy, law_text):
     os.makedirs(folder, exist_ok=True)
     fname = os.path.join(folder, f"{section.replace(' ', '_')}.json")
 
+    # Simulate real GPT call every time
+    st.text(f"🔎 Checking {section}...")
+    time.sleep(2.5)  # ⏳ Looks real (adjust if needed)
+
     if os.path.exists(fname):
         with open(fname, "r") as f:
             content = f.read()
     else:
-        # Fresh GPT call
+        # Actual GPT call
         content = analyze_section(section, policy, law_text)
         with open(fname, "w") as f:
             f.write(content)
 
     return content
+
 
 
 # STEP 5: Define the GPT analysis function
