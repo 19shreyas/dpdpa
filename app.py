@@ -205,7 +205,11 @@ dpdpa_sections = [
 ]
 
 # STEP 5: Define the GPT analysis function
-def analyze_section(section_text, policy_text, full_chapter_text):
+import os
+
+@st.cache_data(show_spinner=False)
+def cached_analysis(section_text, policy_text, chapter_text):
+    # This calls GPT only once per unique input
     prompt = f"""
 You are a DPDPA compliance expert.
 
@@ -247,13 +251,13 @@ Output strictly in JSON format:
 }}
 No explanation outside the JSON.
     """
-
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
         temperature=0
     )
     return response.choices[0].message.content
+
 
 # STEP 6: Run the analysis when button clicked
 if st.button("Run Compliance Check"):
@@ -262,7 +266,19 @@ if st.button("Run Compliance Check"):
         for section in dpdpa_sections:
             try:
                 st.text(f"🔎 Checking {section}...")
-                section_response = analyze_section(section, privacy_policy_text, dpdpa_chapter_text)
+                # Optional: save file per section (one-time only)
+                folder = "cached_responses"
+                os.makedirs(folder, exist_ok=True)
+                file_path = os.path.join(folder, f"{section.replace(' ', '_')}.json")
+                
+                if os.path.exists(file_path):
+                    with open(file_path, "r") as f:
+                        section_response = f.read()
+                else:
+                    section_response = cached_analysis(section, privacy_policy_text, dpdpa_chapter_text)
+                    with open(file_path, "w") as f:
+                        f.write(section_response)
+
                 parsed = json.loads(section_response)
                 results.append(parsed)
             except Exception as e:
