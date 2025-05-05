@@ -295,6 +295,7 @@ if st.button("Run Compliance Check"):
             lambda x: "\n".join(x) if isinstance(x, list)
             else (str(x) if x is not None else "")
         )
+        df = df.astype(str)
         df.to_excel(excel_filename, index=False)
         with open(excel_filename, "rb") as f:
             st.download_button("📥 Download Excel", f, file_name=excel_filename)
