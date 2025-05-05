@@ -4,7 +4,7 @@ import streamlit as st
 import openai
 import pandas as pd
 import json
-
+print(openai.__version__)
 # STEP 1: Setup OpenAI API Key
 openai.api_key = st.secrets["openai_api_key"]
 client = openai.OpenAI(api_key=openai.api_key)
