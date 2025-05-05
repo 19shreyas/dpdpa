@@ -271,33 +271,41 @@ if st.button("Run Compliance Check"):
                 continue
 
     # Convert to DataFrame and display
+    # STEP 8: Show detailed results on screen (No Excel)
     try:
         df = pd.DataFrame(results)
         st.success("✅ Completed analysis of all sections!")
-        st.subheader("📋 Compliance Table")
-        st.dataframe(df)
-
-        # Calculate compliance score
-        total_sections = df.shape[0]
+        
+        st.subheader("📋 Compliance Table (Summary)")
+        st.dataframe(df[["DPDPA Section", "Match Level", "Compliance Points"]])
+    
+        st.subheader("📑 Detailed Section-wise Results")
+        for section_result in results:
+            with st.expander(section_result["DPDPA Section"]):
+                st.markdown(f"**Match Level:** {section_result['Match Level']}")
+                st.markdown(f"**Compliance Points:** {section_result['Compliance Points']}")
+                st.markdown(f"**Severity:** {section_result.get('Severity', 'N/A')}")
+                st.markdown("**Matched Policy Snippets:**")
+                st.code(
+                    "\n".join(section_result["Matched Policy Snippets"]) 
+                    if isinstance(section_result["Matched Policy Snippets"], list) 
+                    else str(section_result["Matched Policy Snippets"])
+                )
+                st.markdown("**Justification:**")
+                st.write(section_result.get("Justification", ""))
+                st.markdown("**Suggested Rewrite:**")
+                st.write(section_result.get("Suggested Rewrite", ""))
+    
+        # Overall compliance score
         scored_points = df["Compliance Points"].astype(float).sum()
+        total_sections = df.shape[0]
         compliance_percentage = (scored_points / total_sections) * 100
-
+    
         st.subheader("🎯 Compliance Score Summary")
         st.write(f"**Total Sections Analyzed:** {total_sections}")
         st.write(f"**Total Points Scored:** {scored_points:.2f}")
         st.write(f"**Compliance Score:** {compliance_percentage:.2f}%")
-
-        # Allow Excel download
-        excel_filename = "DPDPA_Compliance_SectionWise_Final.xlsx"
-      # Fix mixed type error
-        # Safely convert any list or None in 'Matched Policy Snippets' to a clean string
-        df["Matched Policy Snippets"] = df["Matched Policy Snippets"].apply(
-            lambda x: "\n".join(x) if isinstance(x, list)
-            else (str(x) if x is not None else "")
-        )
-        df = df.astype(str)
-        df.to_excel(excel_filename, index=False)
-        with open(excel_filename, "rb") as f:
-            st.download_button("📥 Download Excel", f, file_name=excel_filename)
+    
     except Exception as e:
-        st.error(f"Error generating output: {e}")
+        st.error(f"❌ Error displaying results: {e}")
+
