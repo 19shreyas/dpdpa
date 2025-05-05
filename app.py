@@ -289,6 +289,9 @@ if st.button("Run Compliance Check"):
 
         # Allow Excel download
         excel_filename = "DPDPA_Compliance_SectionWise_Final.xlsx"
+      # Fix mixed type error
+        df["Matched Policy Snippets"] = df["Matched Policy Snippets"].apply(lambda x: "\n".join(x) if isinstance(x, list) else str(x))
+
         df.to_excel(excel_filename, index=False)
         with open(excel_filename, "rb") as f:
             st.download_button("📥 Download Excel", f, file_name=excel_filename)
