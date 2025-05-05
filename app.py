@@ -296,7 +296,6 @@ if st.button("Run Compliance Check"):
         #         continue
         for section in dpdpa_sections:
             try:
-                st.text(f"🔎 Checking {section}...")
                 section_response = get_or_run_analysis(section, privacy_policy_text, dpdpa_chapter_text)
                 parsed = json.loads(section_response)
                 results.append(parsed)
