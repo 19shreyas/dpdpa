@@ -266,18 +266,7 @@ if st.button("Run Compliance Check"):
         for section in dpdpa_sections:
             try:
                 st.text(f"🔎 Checking {section}...")
-                # Optional: save file per section (one-time only)
-                folder = "cached_responses"
-                os.makedirs(folder, exist_ok=True)
-                file_path = os.path.join(folder, f"{section.replace(' ', '_')}.json")
-                
-                if os.path.exists(file_path):
-                    with open(file_path, "r") as f:
-                        section_response = f.read()
-                else:
-                    section_response = cached_analysis(section, privacy_policy_text, dpdpa_chapter_text)
-                    with open(file_path, "w") as f:
-                        f.write(section_response)
+                section_response = analyze_section(section, privacy_policy_text, dpdpa_chapter_text)
 
                 parsed = json.loads(section_response)
                 results.append(parsed)
